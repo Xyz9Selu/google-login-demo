@@ -18,13 +18,39 @@
     </div>
 
     <script>
-        const userData = sessionStorage.getItem('google_user');
-        if (userData) {
-            const user = JSON.parse(userData);
+        // 检查后端session
+        fetch('/api/user')
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                }
+                // 如果后端没有session, 检查前端的sessionStorage
+                const userData = sessionStorage.getItem('google_user');
+                if (userData) {
+                    return JSON.parse(userData);
+                }
+                return null;
+            })
+            .then(user => {
+                if (user) {
+                    displayUserInfo(user);
+                }
+            })
+            .catch(() => {
+                // 如果fetch失败, 检查前端的sessionStorage
+                const userData = sessionStorage.getItem('google_user');
+                if (userData) {
+                    displayUserInfo(JSON.parse(userData));
+                }
+            });
+
+        function displayUserInfo(user) {
             document.getElementById('login-section').style.display = 'none';
             document.getElementById('user-info').style.display = 'block';
             document.getElementById('user-name').textContent = user.name || 'N/A';
             document.getElementById('user-email').textContent = user.email || 'N/A';
+            // 同步到sessionStorage
+            sessionStorage.setItem('google_user', JSON.stringify(user));
         }
 
         function logout() {

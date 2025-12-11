@@ -1,4 +1,4 @@
-from flask import Flask, redirect, request, session
+from flask import Flask, redirect, request, session, jsonify
 import os
 from google_auth_oauthlib.flow import Flow
 import json
@@ -33,6 +33,10 @@ def index():
 
 @app.route('/login')
 def login():
+    # 如果已有有效session, 直接跳转到主页
+    if session.get('user'):
+        return redirect('/')
+    
     if not CLIENT_ID or not CLIENT_SECRET:
         return 'Google OAuth credentials not configured', 500
     
@@ -71,12 +75,23 @@ def google_login_redirect():
     service = build('oauth2', 'v2', credentials=flow.credentials)
     user_info = service.userinfo().get().execute()
     
+    # 将用户信息存入Flask session
+    session['user'] = user_info
+    
     return f"""<html><head><title>Login Success</title></head><body>
     <script>
         sessionStorage.setItem('google_user', JSON.stringify({json.dumps(user_info)}));
         window.location.href = '/';
     </script>
     </body></html>"""
+
+@app.route('/api/user')
+def get_user():
+    """检查session中是否有用户信息"""
+    user = session.get('user')
+    if user:
+        return jsonify(user)
+    return jsonify({'error': 'Not authenticated'}), 401
 
 @app.route('/logout')
 def logout():
