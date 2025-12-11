@@ -2,6 +2,9 @@ from flask import Flask, redirect, request, session, jsonify
 import os
 from google_auth_oauthlib.flow import Flow
 import json
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Allow insecure transport for localhost development (HTTP instead of HTTPS)
 # WARNING: Only use this for local development, never in production!
