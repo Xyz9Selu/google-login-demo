@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Google Login</title>
+</head>
+<body>
+    <div id="login-section">
+        <h1>Google Login Demo</h1>
+        <a href="/login">Sign in with Google</a>
+    </div>
+
+    <div id="user-info" style="display:none;">
+        <h2>Welcome!</h2>
+        <p>Name: <span id="user-name"></span></p>
+        <p>Email: <span id="user-email"></span></p>
+        <button onclick="logout()">Logout</button>
+    </div>
+
+    <script>
+        const userData = sessionStorage.getItem('google_user');
+        if (userData) {
+            const user = JSON.parse(userData);
+            document.getElementById('login-section').style.display = 'none';
+            document.getElementById('user-info').style.display = 'block';
+            document.getElementById('user-name').textContent = user.name || 'N/A';
+            document.getElementById('user-email').textContent = user.email || 'N/A';
+        }
+
+        function logout() {
+            sessionStorage.removeItem('google_user');
+            window.location.href = '/logout';
+        }
+    </script>
+</body>
+</html>
